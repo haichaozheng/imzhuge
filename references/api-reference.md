@@ -4,7 +4,7 @@
 - **鉴权**：所有请求必须带 `X-API-Key: pm_前缀8位_密文` header（session/cookie 无效）
 - **响应格式**：`{"status": "success|error|warning", "message": "...", "data": ...}`，UTF-8，中文不转义
 - **时间格式**：naive `YYYY-MM-DDTHH:MM`（Asia/Shanghai，无时区后缀）
-- **URL 规则**：`APPEND_SLASH=False`，所有路径必须带尾部斜杠
+- **URL 规则**：所有路径带尾部斜杠（历史配置 APPEND_SLASH=False；实测 2026-11 服务端对缺斜杠已宽容返回 200，仍统一带斜杠以兼容严格模式环境）
 - **HTTP 状态**：200（业务响应含 error/warning）、401（鉴权失败）、403（权限）、404（实体不存在）、405（方法不允许）、429（限流）
 - **限流**：2026-11-03 起，所有端点按 API Key 归属用户限流 **60 次/分钟**（固定窗口，Redis 计数）。超限返回 429 + `Retry-After` 头 + `{"status": "error", "message": "请求过于频繁，请稍后重试"}`。**429 意味着请求被拦截、业务未执行——等待后可安全重试，不会重复成交**（与超时不同：超时结果未知，禁止重试）。Redis 故障时限流自动失效放行（fail-open）
 
