@@ -6,12 +6,15 @@
       → （显式传参时）下单 → 复查持仓。
 
 用法：
+    # 离线演示模式（无 Key、无网络，走内置 fixture，可安全重复执行）
+    python trade_demo.py --mock
+
     # 只读模式（无任何写操作，可安全重复执行）
     python trade_demo.py
 
     # 下单模式（6 个位置参数齐备才交易；默认交互确认，--yes 跳过）
     python trade_demo.py <activity_id> <contract_id> <buy|sell> <share> <pred_proba> "<note>"
-    python trade_demo.py 46994 95290 buy 1 0.6 "看好指数上涨，试水一份"
+    python trade_demo.py 46994 95291 buy 1 0.6 "看好指数收在±5%区间内，试水一份"
 
     # 大事件（activity_count > 100，如 sh50_5）不下拉市场列表，
     # 需从网页端市场页 URL 获取 project_id 后用 --project 指定：
@@ -21,10 +24,13 @@
     python trade_demo.py ... --allow-insecure
 
 环境变量：
-    IMZHUGE_API_KEY            必填，pm_ 开头的用户级 API Key
+    IMZHUGE_API_KEY            必填（--mock 模式除外），pm_ 开头的用户级 API Key
     IMZHUGE_BASE_URL           选填，默认 https://m.imzhuge.com（本地联调设 http://127.0.0.1:8000）
 
 注意：
+    - --mock：离线演示模式，不读环境变量、不联网，用 scripts/mock_fixtures.py 的
+      内置数据走完整链路（含大事件跳过、隔离赛余额、区间档/事件类合约），
+      输出格式与真实模式同构，适合无账号/无 Key 环境验证 skill 能力。
     - 下单无幂等保护：失败/超时后禁止自动重试，先查持仓确认实际状态。
     - note 必须大于 5 个字、不超过 1000 字；confidence 四选一（--confidence，默认"有点信心"）；pred_proba 为 0~1 数值。
     - 大事件防护：比赛活动数超过 100 时不调用 my_event_markets（响应过大会刷爆上下文）。
@@ -51,6 +57,7 @@ BASE = (os.environ.get('IMZHUGE_BASE_URL') or 'https://m.imzhuge.com').rstrip('/
 CONFIDENCE_LIST = ['完全瞎猜', '有点瞎猜', '有点信心', '很有信心']
 BIG_EVENT_ACTIVITY_LIMIT = 100   # 活动数超过此值视为大事件，禁止全量下拉市场列表
 MIN_CALL_INTERVAL = 1.1          # 最小调用间隔（秒），保守防 429（限流 60 次/分钟）
+MOCK = '--mock' in sys.argv      # 离线演示模式：不读环境变量、不联网
 _last_call_ts = 0.0
 
 
@@ -80,11 +87,15 @@ _opener = urllib.request.build_opener(_SafeRedirectHandler)
 def call(method, path, body=None):
     """调 open API，返回 (http_status, resp_dict)。
 
+    --mock 模式下路由到 mock_fixtures.mock_call，零网络请求。
     网络层异常（超时/不可达/非 JSON 响应）不向上抛裸异常，
     统一转为 (0, {'status': 'error', ...})，由调用方决定如何提示。
     内置：最小调用间隔防 429；429 时按 Retry-After 等待后重发一次（业务未执行，安全）。
     """
     global _last_call_ts
+    if MOCK:
+        import mock_fixtures
+        return mock_fixtures.mock_call(method, path, body)
     data = None
     headers = {'X-API-Key': API_KEY}
     if body is not None:
@@ -194,15 +205,18 @@ def resolve_project(args, events):
 
 
 def main():
-    # ---- 环境检查 ----
-    if not API_KEY:
+    # ---- 环境检查（--mock 模式跳过：不读环境变量、不联网）----
+    if MOCK:
+        print('（离线演示模式 --mock：使用内置 fixture 数据，不读环境变量、不发起网络请求）\n')
+    elif not API_KEY:
         die('环境变量 IMZHUGE_API_KEY 未设置。\n'
             '获取：网页端 https://m.imzhuge.com → 登录 → 个人中心 → API Key → 生成（pm_ 开头）\n'
             '设置：macOS/Linux  export IMZHUGE_API_KEY="pm_你的key"\n'
             '      PowerShell  $env:IMZHUGE_API_KEY = "pm_你的key"\n'
             '      Windows永久 setx IMZHUGE_API_KEY "pm_你的key"（重开终端生效）\n'
+            '（无 Key 可先用 --mock 离线体验完整链路：python trade_demo.py --mock）\n'
             '注意：Key 可交易积分，勿粘贴进对话/代码/笔记；泄露立即网页端轮换。')
-    if not API_KEY.startswith('pm_'):
+    if not MOCK and not API_KEY.startswith('pm_'):
         die('API Key 格式不对，应以 pm_ 开头。')
 
     # ---- 命令行参数（先校验，再发起任何 API 调用）----
@@ -220,14 +234,19 @@ def main():
                     help='自信程度四选一（默认：%(default)s）')
     ap.add_argument('--allow-insecure', action='store_true',
                     help='放行明文 HTTP 的非本机 Base URL（Key 将明文穿网，仅限受信网络联调）')
+    ap.add_argument('--mock', action='store_true',
+                    help='离线演示模式：内置 fixture 数据，不读环境变量、不联网')
     ap.add_argument('--yes', action='store_true', help='跳过交互确认（默认需输入 yes）')
     args = ap.parse_args()
 
-    # ---- Base URL 协议校验：非 https 且非本机地址时 Key 会明文穿网 ----
-    from urllib.parse import urlparse
-    _parsed = urlparse(BASE)
+    # ---- Base URL 协议校验：非 https 且非本机地址时 Key 会明文穿网（--mock 不联网，跳过）----
+    if MOCK:
+        _parsed = None
+    else:
+        from urllib.parse import urlparse
+        _parsed = urlparse(BASE)
     _local_hosts = {'localhost', '127.0.0.1', '::1'}
-    if _parsed.scheme != 'https' and (_parsed.hostname or '') not in _local_hosts:
+    if not MOCK and _parsed.scheme != 'https' and (_parsed.hostname or '') not in _local_hosts:
         print('⚠️  警告：IMZHUGE_BASE_URL 指向明文 HTTP 的非本机地址（%s）。' % _parsed.hostname)
         print('    API Key（含交易能力）将以明文穿越网络，可被中间人截获，')
         print('    仅应在私有/受信网络中联调时使用。')

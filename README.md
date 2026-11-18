@@ -53,6 +53,8 @@ skills CLI（[vercel-labs/skills](https://github.com/vercel-labs/skills)）会�
 | 其他遵循 Agent Skills 约定的 harness | `<skills 目录>/imzhuge/`，常见如 `~/.agents/skills/imzhuge/` |
 | WorkBuddy | 客户端"上传技能"导入：将本目录打包为 zip（根目录需含 SKILL.md）拖拽上传 |
 
+> 沙箱/评测环境无法配置 API Key 时，可直接运行 `python scripts/trade_demo.py --mock` 离线验证本技能的完整链路与输出格式（零依赖、零网络）。
+
 安装后工具会自动读取 `SKILL.md` 的 description，在用户提到相关操作时触发；`references/` 与 `scripts/` 随目录一起被引用，无需额外配置。注意新装的 skill 通常在**新会话**中才会被发现。
 
 ### 通用方法（不依赖任何特定工具）
@@ -82,7 +84,15 @@ setx IMZHUGE_API_KEY "pm_你的key"
 
 ### 第 3 步：验证
 
-在 agent 对话中说"**看看现状**"，skill 会自动检查连接并展示开场速览卡：
+**零配置验证（30 秒，无需账号和 Key）**——先离线体验完整链路：
+
+```bash
+python scripts/trade_demo.py --mock
+```
+
+--mock 模式使用内置演示数据（不联网、不读环境变量），输出格式与真实模式同构，适合安装后快速确认 skill 正常、以及无账号环境了解能力。
+
+配置好 Key 后，在 agent 对话中说"**看看现状**"，skill 会自动检查连接并展示开场速览卡：
 
 ```
 ✅ 连接正常 | 服务器: m.imzhuge.com
@@ -110,14 +120,17 @@ setx IMZHUGE_API_KEY "pm_你的key"
 `scripts/trade_demo.py`（仅 Python 3 标准库，无第三方依赖）演示完整参与者链路：
 
 ```bash
-# 只读模式（无任何写操作，可安全重复执行）
+# 离线演示模式（内置 fixture，无 Key、无网络，可安全重复执行）
+python scripts/trade_demo.py --mock
+
+# 只读模式（真实环境，无任何写操作，可安全重复执行）
 python scripts/trade_demo.py
 
 # 下单模式（6 个参数齐备才交易，默认交互确认）
 python scripts/trade_demo.py <activity_id> <contract_id> <buy|sell> <share> <pred_proba> "<note>"
 ```
 
-只读模式适合首次安装后验证连通性。下单模式带人工确认步骤（输入 `yes` 才发送），大事件（活动数 > 100 的长期赛）自动跳过市场列表下拉以防响应过大。
+--mock 适合无账号/无 Key 环境验证 skill 能力（沙箱评测、CI 等）。只读模式适合首次安装后验证连通性。下单模式带人工确认步骤（输入 `yes` 才发送），大事件（活动数 > 100 的长期赛）自动跳过市场列表下拉以防响应过大。正常输出样例见 `examples/sample-output.md`。
 
 ## 已知限制（诚实清单）
 
@@ -137,11 +150,18 @@ imzhuge/
 ├── LICENSE                         # MIT
 ├── README.md                      # 本文件（面向人的介绍）
 ├── SKILL.md                       # skill 主文档（面向 agent 的运行时指令）
+├── examples/
+│   └── sample-output.md           # 真实与 mock 模式的正常输出样例（回归基准）
 ├── references/
 │   ├── api-reference.md           # 全量 13 端点的请求/响应字段文档
-│   └── key-setup-guide.md         # API Key 获取与配置引导模板
+│   ├── key-setup-guide.md         # API Key 获取与配置引导模板
+│   ├── security.md                # Key 安全纪律完整表 + 生命周期 + 收尾检查单
+│   ├── trading-workflow.md        # 交易话术模板 + 交互规范 + 调研流程
+│   ├── troubleshooting.md         # 错误处理速查表
+│   └── windows-notes.md           # Windows/PowerShell 实测调用要点
 └── scripts/
-    └── trade_demo.py              # 参与者链路演示脚本（Python 3 标准库）
+    ├── trade_demo.py              # 参与者链路演示脚本（支持 --mock 离线模式）
+    └── mock_fixtures.py           # --mock 模式的内置演示数据
 ```
 
 ## 适用后端
