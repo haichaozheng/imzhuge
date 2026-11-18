@@ -1,6 +1,11 @@
 ---
 name: imzhuge
-description: 嗨皮诸葛预测市场平台技能：创建/管理预测比赛与市场，查询赛事、持仓、余额，以及通过用户级 API Key 下单交易各类预测市场的合约（涨跌、区间、事件等）。当用户要求创建比赛、创建预测市场、修改市场、查询自己参与的赛事/持仓/余额、或进行买卖下单时使用此技能。不用于 API Key 自身的管理/轮换，也不做提现、转账等资金操作。
+description: "嗨皮诸葛预测市场平台技能：创建/管理预测比赛与市场，查询赛事、持仓、余额，以及通过用户级 API Key 下单交易各类预测市场的合约（涨跌、区间、事件等）。当用户要求创建比赛、创建预测市场、修改市场、查询自己参与的赛事/持仓/余额、或进行买卖下单时使用此技能。不用于 API Key 自身的管理/轮换，也不做提现、转账等资金操作。"
+version: "1.0.0"
+display_name: "嗨皮诸葛预测市场"
+display_name_en: "iZhuge Prediction Market"
+description_zh: "嗨皮诸葛预测市场平台技能：创建/管理预测比赛与市场，查询赛事、持仓、余额，以及通过用户级 API Key 下单交易各类预测市场的合约（涨跌、区间、事件等）。当用户要求创建比赛、创建预测市场、修改市场、查询自己参与的赛事/持仓/余额、或进行买卖下单时使用此技能。不用于 API Key 自身的管理/轮换，也不做提现、转账等资金操作。"
+description_en: "Skill for the iZhuge prediction market platform: create and manage prediction events and markets, query events, holdings and balances, and trade prediction market contracts (up/down, range, event outcomes) via a user-level API Key. Use when the user asks to create events or markets, update markets, query their events/holdings/balance, or place buy/sell orders. Not for API Key management/rotation, withdrawals, or transfers."
 license: MIT
 ---
 
