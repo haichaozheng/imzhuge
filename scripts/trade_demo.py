@@ -368,6 +368,9 @@ def do_trade(args, events):
         d = r['data']
         print('  成交！trade_id=%s 价=%s payoff=%s' % (d['trade_id'], d['price'], d['payoff']))
         print('  余额=%s 全局=%s' % (d['balance_after'], d['total_money_after']))
+        if not MOCK and BASE.startswith('http://'):
+            print('  🔒 提醒：本次会话的 API Key 以明文传输，任务结束后建议立即轮换'
+                  '（网页端 个人中心 → API Key）。')
     else:
         print('  失败：%s' % r.get('message'))
         print('  （注意：执行类失败禁止自动重试；请先查持仓确认实际状态）')
