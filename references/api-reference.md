@@ -348,7 +348,7 @@
 
 | 变量 | 必填 | 说明 |
 |---|---|---|
-| `IMZHUGE_API_KEY` | ✅ | 用户级 API Key（网页端"个人中心 → API Key"生成）。**敏感**：可交易积分，只在环境变量中设置，禁止粘贴进对话/代码/笔记，泄露立即轮换 |
+| `IMZHUGE_API_KEY` | ✅ | 用户级 API Key（网页端"个人中心 → API Key"生成）。**敏感**：可交易积分，只在环境变量中设置，禁止粘贴进对话/代码/笔记，泄露立即重置 |
 | `IMZHUGE_BASE_URL` | ❌ | 开发者选项，普通用户无需设置。默认 `https://m.imzhuge.com`（正式服务器）；本地联调后端时覆盖为 `http://127.0.0.1:8000` |
 
 **Key 未配置时的获取引导**（参照 Tushare 风格）：
@@ -356,6 +356,8 @@
 ```bash
 # macOS / Linux
 export IMZHUGE_API_KEY="pm_你的key"
+# macOS / Linux 永久生效（以 zsh 为例；bash 用户换成 ~/.bashrc）
+echo 'export IMZHUGE_API_KEY="pm_你的key"' >> ~/.zshrc && source ~/.zshrc
 # Windows PowerShell（当前终端）
 $env:IMZHUGE_API_KEY = "pm_你的key"
 # Windows 永久生效

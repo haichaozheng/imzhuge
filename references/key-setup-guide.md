@@ -21,6 +21,9 @@ Key 未配置时向用户输出的完整引导模板（SKILL.md 第三节引用�
   # macOS / Linux（当前 shell 生效）
   export IMZHUGE_API_KEY="pm_你的key"
 
+  # macOS / Linux 永久生效（写入 shell 配置文件，以 zsh 为例；bash 用户换成 ~/.bashrc）
+  echo 'export IMZHUGE_API_KEY="pm_你的key"' >> ~/.zshrc && source ~/.zshrc
+
   # Windows PowerShell（当前终端生效）
   $env:IMZHUGE_API_KEY = "pm_你的key"
 
@@ -30,7 +33,7 @@ Key 未配置时向用户输出的完整引导模板（SKILL.md 第三节引用�
 【第 3 步】告诉我"已设置"，我会验证连通性后继续
 
 🔒 安全提醒：这把 Key 可以交易你的积分/诸葛贝。只在环境变量中设置，
-不要粘贴到对话、代码、截图或笔记里。怀疑泄露立即去网页端轮换。
+不要粘贴到对话、代码、截图或笔记里。怀疑泄露立即去网页端重置。
 
 > 💡 开发者选项（普通用户无需设置）：本地联调嗨皮诸葛后端时，
 > 另设 `IMZHUGE_BASE_URL=http://127.0.0.1:8000`（需本地运行服务），

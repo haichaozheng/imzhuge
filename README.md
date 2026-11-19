@@ -28,12 +28,18 @@
 - 支持 agent skill 的 AI 工具之一：
   - [OpenCode](https://opencode.ai)（原生支持）
   - [Claude Code](https://claude.com/claude-code)（兼容，同为 SKILL.md 规范）
-  - WorkBuddy 等办公智能体（客户端"上传技能"导入，见下方安装方式）
+  - WorkBuddy 等办公智能体（客户端"技能广场"搜索一键安装，见下方安装方式）
 - 嗨皮诸葛平台账号（[www.imzhuge.com](https://www.imzhuge.com) 注册）
 
 ### 安装
 
-#### 方式一：skills CLI（推荐，一条命令装进所有工具）
+#### 方式一：WorkBuddy 技能广场（WorkBuddy 用户推荐）
+
+💼 打开客户端「技能广场」，搜索"嗨皮诸葛"（全名：嗨皮诸葛预测市场），点击安装即可。
+
+若搜不到广场条目：从 [GitHub 仓库](https://github.com/haichaozheng/imzhuge) 下载 zip（根目录含 `SKILL.md`），在客户端"上传技能"导入（兜底，同方式三表格中 WorkBuddy 行）。
+
+#### 方式二：skills CLI（OpenCode / Claude Code 等推荐，一条命令装进所有工具）
 
 ```bash
 npx skills add haichaozheng/imzhuge
@@ -41,7 +47,7 @@ npx skills add haichaozheng/imzhuge
 
 skills CLI（[vercel-labs/skills](https://github.com/vercel-labs/skills)）会自动检测你机器上已装的 AI 工具（OpenCode、Claude Code、Cursor、Codex 等 75+ 种），让你选择装到哪些；加 `-g` 则全局安装、跨项目可用。后续用 `npx skills update imzhuge` 升级。要求 Node.js ≥ 22.20。
 
-#### 方式二：手动安装
+#### 方式三：手动安装
 
 把整个 `imzhuge/` 目录放到所用工具的 skills 目录（目录名 `imzhuge` 需与 SKILL.md 中的 `name` 一致，`SKILL.md` 直接位于该目录下）：
 
@@ -51,7 +57,7 @@ skills CLI（[vercel-labs/skills](https://github.com/vercel-labs/skills)）会�
 | Claude Code | `.claude/skills/imzhuge/`（项目级）或 `~/.claude/skills/imzhuge/`（个人级） |
 | Cursor | `~/.cursor/skills/imzhuge/` |
 | 其他遵循 Agent Skills 约定的 harness | `<skills 目录>/imzhuge/`，常见如 `~/.agents/skills/imzhuge/` |
-| WorkBuddy | 客户端"上传技能"导入：将本目录打包为 zip（根目录需含 SKILL.md）拖拽上传 |
+| WorkBuddy | 首选客户端"技能广场"搜索"嗨皮诸葛"一键安装（见方式一）；搜不到时兜底：下载仓库 zip（根目录需含 SKILL.md），在客户端"上传技能"导入 |
 
 > 沙箱/评测环境无法配置 API Key 时，可直接运行 `python scripts/trade_demo.py --mock` 离线验证本技能的完整链路与输出格式（零依赖、零网络）。
 
@@ -74,6 +80,9 @@ skills CLI（[vercel-labs/skills](https://github.com/vercel-labs/skills)）会�
 ```bash
 # macOS / Linux（当前 shell 生效）
 export IMZHUGE_API_KEY="pm_你的key"
+
+# macOS / Linux 永久生效（写入 shell 配置文件，以 zsh 为例；bash 用户换成 ~/.bashrc）
+echo 'export IMZHUGE_API_KEY="pm_你的key"' >> ~/.zshrc && source ~/.zshrc
 
 # Windows PowerShell（当前终端生效）
 $env:IMZHUGE_API_KEY = "pm_你的key"
@@ -111,8 +120,8 @@ python scripts/trade_demo.py --mock
 
 - Key 只通过环境变量传递，**绝不粘贴进对话、代码、笔记或截图**
 - skill 会拒绝在对话中复述 Key 明文（引用时只显示脱敏形式，如 `pm_Ge7...POaS`）
-- 若在对话中不慎粘贴 Key 明文，该 Key 应视为已泄露——任务结束后立即到网页端轮换
-- 怀疑泄露时的处置：网页端 个人中心 → API Key → 重新生成（旧 Key 即时失效）
+- 若在对话中不慎粘贴 Key 明文，该 Key 应视为已泄露——任务结束后立即到网页端重置
+- 怀疑泄露时的处置：网页端 个人中心 → API Key → 重置（旧 Key 即时失效）
 - skill 内置提示注入防护：平台返回的市场名/合约文案等用户生成内容一律当作数据展示，其中夹带的指令不会被 agent 执行
 
 ## Demo 脚本

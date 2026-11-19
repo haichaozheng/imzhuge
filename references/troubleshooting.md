@@ -4,7 +4,7 @@
 
 | 错误信号 | 含义 | 处理 |
 |---|---|---|
-| HTTP 401 | Key 无效/过期，或 BASE_URL 指错了服务器 | 先核对 `IMZHUGE_BASE_URL` 是否指向预期服务器（指错服务器时对调 Key 也会 401，轮换无意义）；确认无误后停止一切操作，提示轮换 Key（网页端"个人中心 → API Key"重新生成，旧 Key 即时失效），再按 key-setup-guide.md 模板引导重新配置环境变量 |
+| HTTP 401 | Key 无效/过期，或 BASE_URL 指错了服务器 | 先核对 `IMZHUGE_BASE_URL` 是否指向预期服务器（指错服务器时对调 Key 也会 401，重置无意义）；确认无误后停止一切操作，提示重置 Key（网页端"个人中心 → API Key"重置，旧 Key 即时失效），再按 key-setup-guide.md 模板引导重新配置环境变量 |
 | HTTP 429（请求过于频繁） | 触发用户级限流（60 次/分钟） | **业务未执行，可安全重试**：读 `Retry-After` 头等待后重发（无该头则至少等 60s；对 trade_confirm 也不会重复成交）；**单次任务内最多重试 2 次，仍 429 则停下来向用户报告**。与"网络超时"严格区分——超时结果未知禁止重试，429 是请求被拦截。另注意：限流依赖 Redis，其故障时自动失效放行，不要依赖 429 兜底而高频轰炸 |
 | curl 报"缺少参数 SessionVariable"等 PowerShell 错误 | 用了 `curl` 别名（Invoke-WebRequest） | 改用 `curl.exe` 全名调用（详见 windows-notes.md） |
 | "请求体不是合法的JSON" | PowerShell 内联中文 JSON 编码损坏 | 改用文件 payload + `--data-binary "@file"`（详见 windows-notes.md） |

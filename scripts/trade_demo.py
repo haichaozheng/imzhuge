@@ -215,7 +215,7 @@ def main():
             '      PowerShell  $env:IMZHUGE_API_KEY = "pm_你的key"\n'
             '      Windows永久 setx IMZHUGE_API_KEY "pm_你的key"（重开终端生效）\n'
             '（无 Key 可先用 --mock 离线体验完整链路：python trade_demo.py --mock）\n'
-            '注意：Key 可交易积分，勿粘贴进对话/代码/笔记；泄露立即网页端轮换。')
+            '注意：Key 可交易积分，勿粘贴进对话/代码/笔记；泄露立即网页端重置。')
     if not MOCK and not API_KEY.startswith('pm_'):
         die('API Key 格式不对，应以 pm_ 开头。')
 
@@ -256,7 +256,7 @@ def main():
                 '\n请二选一：去掉 --yes 保留人工确认，或改用 https:// 地址。')
         if not args.allow_insecure:
             die('已中止。确认风险后加 --allow-insecure 重试，或改用 https:// 地址。')
-        print('🚨 已确认风险：本次会话的 API Key 以明文传输，任务结束后建议立即轮换（网页端 个人中心 → API Key）。')
+        print('🚨 已确认风险：本次会话的 API Key 以明文传输，任务结束后建议立即重置（网页端 个人中心 → API Key）。')
 
     trade_mode = any(x is not None for x in
                      [args.activity_id, args.contract_id, args.action,
@@ -369,7 +369,7 @@ def do_trade(args, events):
         print('  成交！trade_id=%s 价=%s payoff=%s' % (d['trade_id'], d['price'], d['payoff']))
         print('  余额=%s 全局=%s' % (d['balance_after'], d['total_money_after']))
         if not MOCK and BASE.startswith('http://'):
-            print('  🔒 提醒：本次会话的 API Key 以明文传输，任务结束后建议立即轮换'
+            print('  🔒 提醒：本次会话的 API Key 以明文传输，任务结束后建议立即重置'
                   '（网页端 个人中心 → API Key）。')
     else:
         print('  失败：%s' % r.get('message'))

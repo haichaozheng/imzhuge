@@ -57,7 +57,7 @@ FATAL: 环境变量 IMZHUGE_API_KEY 未设置。
       PowerShell  $env:IMZHUGE_API_KEY = "pm_你的key"
       Windows永久 setx IMZHUGE_API_KEY "pm_你的key"（重开终端生效）
 （无 Key 可先用 --mock 离线体验完整链路：python trade_demo.py --mock）
-注意：Key 可交易积分，勿粘贴进对话/代码/笔记；泄露立即网页端轮换。
+注意：Key 可交易积分，勿粘贴进对话/代码/笔记；泄露立即网页端重置。
 ```
 
 ## 四、W0 开场速览卡（agent 展示格式）
